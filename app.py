@@ -7,10 +7,11 @@ import pyscreenshot as ss
 import sys
 import pyautogui
 
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QComboBox, QHBoxLayout
 from PyQt5.QtGui import QPixmap, QPalette, QColor
 
 from include import translator
+from include.lists import language_options
 
 class App(QMainWindow):
     def __init__(self):
@@ -22,6 +23,7 @@ class App(QMainWindow):
         self.screenshot = None
         self.coordinates = []
         self.ss_label = QLabel(self)
+        self.translate_to = "EN"
 
         self.select_button = QPushButton(self)
         self.choice = int(1)
@@ -30,6 +32,8 @@ class App(QMainWindow):
         self.convert_button = QPushButton(self)
         self.mode_button = QPushButton(self)
 
+        self.language_to = QLabel(self)
+    
         self.initUI()
 
     def initUI(self):
@@ -45,11 +49,11 @@ class App(QMainWindow):
         self.select_button.setStyleSheet("background-color: pink;")
         self.select_button.clicked.connect(self.screenshoter)
 
-        self.choice1_button = QPushButton("1", self)
+        self.choice1_button = QPushButton("H", self)
         self.choice1_button.setGeometry(50, 0, 25, 25)
         self.choice1_button.setStyleSheet("background-color: purple;")
         self.choice1_button.clicked.connect(lambda: self.set_choice(1))
-        self.choice2_button = QPushButton("2", self)
+        self.choice2_button = QPushButton("V", self)
         self.choice2_button.setGeometry(50, 25, 25, 25)
         self.choice2_button.setStyleSheet("background-color: purple;")
         self.choice2_button.clicked.connect(lambda: self.set_choice(2))
@@ -64,6 +68,20 @@ class App(QMainWindow):
         self.mode_button.setStyleSheet("background-color: gray;")
         self.mode_button.clicked.connect(lambda: self.resizer())
 
+        self.language = QComboBox(self)
+        self.language.setGeometry(150, 0, 0, 50)
+        self.language.setStyleSheet("background-color: darkgreen;")
+        self.language.currentIndexChanged.connect(self.language_preference)
+        language_list = language_options.to_list()
+        self.language.setEditable(True)
+        self.language.addItems(language_list)
+        self.language.adjustSize()
+
+        self.language_to = QLabel(self)
+        self.language_to.setGeometry(150, 20, 80, 30)
+        self.language_to.setStyleSheet("background-color: darkgreen")
+        self.language_to.setWordWrap(True)
+    
         self.words_text = QLabel(self)
         self.jpn_text = QLabel(self)
         self.lang_text = QLabel(self)
@@ -80,6 +98,10 @@ class App(QMainWindow):
         self.lang_text.setWordWrap(True)
         self.lang_text.setPalette(palette1)
 
+    def language_preference(self):
+        self.translate_to = self.language.currentIndex()
+        print(self.translate_to)
+        self.language_to.setText(language_options.language_names[language_options.language_idx[self.translate_to]])
 
     def resizer(self):
         if(self.mode):
@@ -161,31 +183,25 @@ class App(QMainWindow):
         result = kks.convert(text)
         self.words_text.setStyleSheet("border: 2px solid #aac3ff")
         words = ""
-        for item in result:
-             
-            print("{}[{}] -> {}".format(
-                item['orig'], 
-                item['hepburn'].capitalize(), 
-                translator.translator_TR(item['orig'])))
-            
+        language = language_options.language_idx[self.translate_to]
+        for item in result:   
+            translated_word = language_options.func_selecter(language, item['orig'])
             words += "{}[{}] -> {}\n".format(
                 item['orig'], 
                 item['hepburn'].capitalize(), 
-                translator.translator_TR(item['orig']))
+                translated_word,
+            )
             
             self.words_text.setText(words)
-        
-        print()
-        print(f"all sentence (JPN): {text}")
-        print(f"all sentence (ENG): {translator.translator_EN(text)}")
-        print(f"all sentence (TUR): {translator.translator_TR(text)}")
             
+        
         self.jpn_text.setStyleSheet("border: 2px solid #ff33ff")
         text1 = f"(JPN): {text}"
         self.jpn_text.setText(text1)
 
         self.lang_text.setStyleSheet("border: 2px solid #af33ff")
-        text2 = f"(TUR): {translator.translator_TR(text)}"
+        translated_text = language_options.func_selecter(language, text)
+        text2 = f"({language}): {translated_text}"
         self.lang_text.setText(text2)
 
 
