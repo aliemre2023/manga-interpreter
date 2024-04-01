@@ -4,4 +4,4 @@ An application that will help you while reading manga
 
 
 
-<img width="1437" alt="Screen Shot 2024-03-27 at 10 39 40" src="https://github.com/aliemre2023/manga-interpreter/assets/93014021/c16bd912-8866-40ef-acbf-87b92d1679d2">
+<img width="1440" alt="Screen Shot 2024-04-01 at 19 24 19" src="https://github.com/aliemre2023/manga-interpreter/assets/93014021/e96b64a6-c579-43f4-a2ca-44c5a42f631e">
